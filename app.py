@@ -2,14 +2,17 @@ import streamlit as st
 import gspread
 from google.oauth2.service_account import Credentials
 import pandas as pd
-import time
+import json
+import os
 
-# Konfigurasi kredensial menggunakan secrets dari Streamlit Cloud
+# Simpan kredensial ke file credentials.json
+with open("credentials.json", "w") as f:
+    f.write(st.secrets["GCP_CREDENTIALS"])
+
+# Konfigurasi kredensial Google API
 scope = ["https://www.googleapis.com/auth/spreadsheets", 
          "https://www.googleapis.com/auth/drive"]
-creds = Credentials.from_service_account_info(
-    st.secrets["gcp_service_account"], scopes=scope
-)
+creds = Credentials.from_service_account_file("credentials.json", scopes=scope)
 gc = gspread.authorize(creds)
 
 # URL spreadsheet
@@ -32,4 +35,4 @@ df = fetch_data()
 st.dataframe(df)
 
 # Informasi pembaruan terakhir
-st.caption(f"Terakhir diperbarui: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+st.caption(f"Terakhir diperbarui: {pd.Timestamp.now()}")
